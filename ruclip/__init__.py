@@ -48,7 +48,7 @@ MODELS = {
 }
 
 
-def load(name, device='cpu', cache_dir='/tmp/ruclip', use_auth_token=None):
+def load(name, device='cpu', cache_dir='/tmp/ruclip', use_auth_token=None, local_dir=None):
     """Load a ruCLIP model
     Parameters
     ----------
@@ -58,6 +58,8 @@ def load(name, device='cpu', cache_dir='/tmp/ruclip', use_auth_token=None):
         The device to put the loaded model
     cache_dir: str
         path to download the model files; by default, it uses "/tmp/ruclip"
+    local_dir: str (optional)
+        path to local directory where model files are located
     Returns
     -------
     clip : torch.nn.Module
@@ -68,10 +70,13 @@ def load(name, device='cpu', cache_dir='/tmp/ruclip', use_auth_token=None):
     assert name in MODELS, f'All models: {MODELS.keys()}'
     config = MODELS[name]
     repo_id = config['repo_id']
-    cache_dir = os.path.join(cache_dir, name)
-    for filename in config['filenames']:
-        config_file_url = hf_hub_url(repo_id=repo_id, filename=f'{filename}')
-        cached_download(config_file_url, cache_dir=cache_dir, force_filename=filename, use_auth_token=use_auth_token)
+    if local_dir is not None:
+        cache_dir = os.path.join(cache_dir, name)
+    else:
+        cache_dir = os.path.join(cache_dir, name
+        for filename in config['filenames']:
+            config_file_url = hf_hub_url(repo_id=repo_id, filename=f'{filename}')
+            cached_download(config_file_url, cache_dir=cache_dir, force_filename=filename, use_auth_token=use_auth_token)
 
     clip = CLIP.from_pretrained(cache_dir).eval().to(device)
     clip_processor = RuCLIPProcessor.from_pretrained(cache_dir)
