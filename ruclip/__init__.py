@@ -71,9 +71,9 @@ def load(name, device='cpu', cache_dir='/tmp/ruclip', use_auth_token=None, local
     config = MODELS[name]
     repo_id = config['repo_id']
     if local_dir is not None:
-        cache_dir = os.path.join(cache_dir, name)
+        cache_dir = local_dir
     else:
-        cache_dir = os.path.join(cache_dir, name
+        cache_dir = os.path.join(cache_dir, name)
         for filename in config['filenames']:
             config_file_url = hf_hub_url(repo_id=repo_id, filename=f'{filename}')
             cached_download(config_file_url, cache_dir=cache_dir, force_filename=filename, use_auth_token=use_auth_token)
