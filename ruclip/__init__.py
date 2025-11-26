@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 
-from huggingface_hub import hf_hub_url, cached_download
+from huggingface_hub import hf_hub_url, hf_hub_download
 
 from . import model, processor, predictor
 from .model import CLIP
@@ -73,10 +73,18 @@ def load(name, device='cpu', cache_dir='/tmp/ruclip', use_auth_token=None, local
     if local_dir is not None:
         cache_dir = local_dir
     else:
-        cache_dir = os.path.join(cache_dir, name)
+        downloaded_file_paths = []
         for filename in config['filenames']:
-            config_file_url = hf_hub_url(repo_id=repo_id, filename=f'{filename}')
-            cached_download(config_file_url, cache_dir=cache_dir, force_filename=filename, use_auth_token=use_auth_token)
+            file_path = hf_hub_download(
+                repo_id=repo_id,
+                filename=filename,
+                cache_dir=cache_dir,
+                token=use_auth_token
+            )
+            downloaded_file_paths.append(file_path)
+            # config_file_url = hf_hub_url(repo_id=repo_id, filename=f'{filename}')
+            # cached_download(config_file_url, cache_dir=cache_dir, force_filename=filename, use_auth_token=use_auth_token)
+        cache_dir = os.path.dirname(downloaded_file_paths[0])
 
     clip = CLIP.from_pretrained(cache_dir).eval().to(device)
     clip_processor = RuCLIPProcessor.from_pretrained(cache_dir)
